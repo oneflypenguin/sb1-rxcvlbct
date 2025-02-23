@@ -26,18 +26,19 @@ jobs:
       - name: Install Capacitor dependencies
         run: npm install @capacitor/core @capacitor/cli @capacitor/android
 
-      # 3. Initialize Capacitor and add Android platform
+      # 3. Initialize Capacitor (creates/updates capacitor.config.json with webDir as "www")
       - name: Initialize Capacitor
         run: npx cap init "CommentarySync" "com.example.commentarysync" --web-dir www
 
+      # 4. Add Android platform (creates the native Android project structure)
       - name: Add Android platform
         run: npx cap add android
 
-      # 4. Build the web project (assumes output to "dist")
+      # 5. Build the web project (assumed to output to "dist")
       - name: Build web project
         run: npm run build
 
-      # 5. Rename build output from "dist" to "www" for Capacitor
+      # 6. Rename the build output from "dist" to "www" so that Capacitor finds the web assets
       - name: Rename build output to www
         run: |
           if [ -d "dist" ]; then
@@ -48,26 +49,28 @@ jobs:
             exit 1
           fi
 
-      # 6. Copy web assets into the native Android project
+      # 7. Copy web assets into the native Android project
       - name: Copy web assets to Android
         run: npx cap copy android
 
-      # 7. Update android/settings.gradle to include the Capacitor Android module
+      # 8. Update android/settings.gradle to include required Capacitor modules
       - name: Update android/settings.gradle
         run: |
           cat > android/settings.gradle << 'EOF'
           include ':app'
           include ':capacitor-android'
-          project(':capacitor-android').projectDir = new File(rootDir, '../node_modules/@capacitor/android/capacitor')
+          include ':capacitor-cordova-android-plugins'
+          project(':capacitor-android').projectDir = new File(rootProject.projectDir, '../node_modules/@capacitor/android/capacitor')
+          project(':capacitor-cordova-android-plugins').projectDir = new File(rootProject.projectDir, '../node_modules/@capacitor/cli/capacitor-cordova-android-plugins')
           EOF
 
-      # 8. Build the Android APK using Gradle
+      # 9. Build the Android APK using Gradle
       - name: Build Android APK
         run: |
           cd android
           ./gradlew assembleDebug
 
-      # 9. Upload the generated APK as an artifact
+      # 10. Upload the generated APK as an artifact
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
