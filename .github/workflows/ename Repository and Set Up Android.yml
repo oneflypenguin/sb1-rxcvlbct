@@ -1,0 +1,43 @@
+name: Build App for the First Time
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to the main branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Use the latest Ubuntu environment
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v4  # Use the latest checkout action
+
+      # Step 2: Set up Node.js environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v4  # Latest version of Node.js setup
+        with:
+          node-version: 18  # Use Node.js 18 or the version you need
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Step 4: Build the project
+      - name: Build project
+        run: npm run build  # Or whatever command you use to build the project (e.g., "npm run build")
+
+      # Optional: Add a step to generate a platform (like Android) if necessary
+      - name: Build Android (if needed)
+        run: |
+          npx cap add android
+          cd android
+          ./gradlew assembleDebug  # Builds the APK
+
+      # Step 5: Upload build artifacts (e.g., APK or dist files)
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4  # Latest version of the upload-artifact action
+        with:
+          name: app-build
+          path: dist/  # Adjust based on where your build output goes (e.g., dist/ or android/app/build)
