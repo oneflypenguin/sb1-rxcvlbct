@@ -24,11 +24,11 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # Step 4: Install Capacitor packages including the Android package
+      # Step 4: Install Capacitor packages including Android
       - name: Install Capacitor dependencies
         run: npm install @capacitor/core @capacitor/cli @capacitor/android
 
-      # Step 5: Initialize Capacitor
+      # Step 5: Initialize Capacitor (this creates or updates capacitor.config.json with webDir as "www")
       - name: Initialize Capacitor
         run: npx cap init "CommentarySync" "com.example.commentarysync" --web-dir www
 
@@ -36,21 +36,32 @@ jobs:
       - name: Add Android platform
         run: npx cap add android
 
-      # Step 7: Build the web project (adjust if your build command is different)
+      # Step 7: Build the web project (assumed to output to "dist")
       - name: Build web project
         run: npm run build
 
-      # Step 8: Copy web assets to the native Android project
+      # Step 8: Rename the build output from "dist" to "www" (so that Capacitor finds the web assets)
+      - name: Rename build output to www
+        run: |
+          if [ -d "dist" ]; then
+            rm -rf www
+            mv dist www
+          else
+            echo "dist directory not found!"
+            exit 1
+          fi
+
+      # Step 9: Copy web assets into the native Android project
       - name: Copy web assets
         run: npx cap copy android
 
-      # Step 9: Build the Android APK
+      # Step 10: Build the Android APK
       - name: Build Android APK
         run: |
           cd android
           ./gradlew assembleDebug
 
-      # Step 10: Upload the APK as an artifact
+      # Step 11: Upload the APK as an artifact
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
