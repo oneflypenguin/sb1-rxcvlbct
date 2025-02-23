@@ -1,0 +1,56 @@
+name: Rename Repository and Set Up Android
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to the main branch
+
+jobs:
+  rename-and-setup:
+    runs-on: ubuntu-latest  # Use the latest Ubuntu environment
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v4  # Use the latest checkout action
+
+      # Step 2: Rename the app in package.json
+      - name: Rename app in package.json
+        run: |
+          sed -i 's/"name": ".*"/"name": "CommentarySync"/' package.json
+
+      # Step 3: Update README.md
+      - name: Update README.md
+        run: |
+          echo '# CommentarySync' > README.md
+          echo 'This repository is now named CommentarySync, with Android development setup.' >> README.md
+          
+      # Step 4: Create the basic Android project structure
+      - name: Set up standard Android directory structure
+        run: |
+          mkdir -p android/app/src/main/java/com/example/commentarysync
+          mkdir -p android/app/src/main/res
+          mkdir -p android/app/src/main/assets
+          mkdir -p android/app/src/main/AndroidManifest.xml
+          mkdir -p android/app/src/main/java/com/example/commentarysync/MainActivity.java
+
+          # Optional: Add basic content to MainActivity.java
+          echo 'package com.example.commentarysync;' > android/app/src/main/java/com/example/commentarysync/MainActivity.java
+          echo 'import android.os.Bundle;' >> android/app/src/main/java/com/example/commentarysync/MainActivity.java
+          echo 'import androidx.appcompat.app.AppCompatActivity;' >> android/app/src/main/java/com/example/commentarysync/MainActivity.java
+          echo 'public class MainActivity extends AppCompatActivity {' >> android/app/src/main/java/com/example/commentarysync/MainActivity.java
+          echo '    @Override' >> android/app/src/main/java/com/example/commentarysync/MainActivity.java
+          echo '    protected void onCreate(Bundle savedInstanceState) {' >> android/app/src/main/java/com/example/commentarysync/MainActivity.java
+          echo '        super.onCreate(savedInstanceState);' >> android/app/src/main/java/com/example/commentarysync/MainActivity.java
+          echo '        setContentView(R.layout.activity_main);' >> android/app/src/main/java/com/example/commentarysync/MainActivity.java
+          echo '    }' >> android/app/src/main/java/com/example/commentarysync/MainActivity.java
+          echo '}' >> android/app/src/main/java/com/example/commentarysync/MainActivity.java
+
+      # Step 5: Commit changes
+      - name: Commit changes
+        run: |
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+          git add .
+          git commit -m "Renamed repository to CommentarySync and set up Android development structure"
+          git push
