@@ -56,9 +56,10 @@ jobs:
         run: |
           npm install @capacitor/core @capacitor/cli @capacitor/android
 
-      # Step 8: Initialize Capacitor (if capacitor.config.json doesn't exist)
+      # Step 8: Initialize Capacitor (non-interactive)
       - name: Initialize Capacitor
-        run: npx cap init --web-dir www
+        run: |
+          npx cap init "CommentarySync" "com.example.commentarysync" --web-dir www --skip-config
 
       # Step 9: Add Android platform
       - name: Add Android platform
