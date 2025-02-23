@@ -38,7 +38,7 @@ jobs:
       - name: Build web project
         run: npm run build
 
-      # 6. Rename the build output from "dist" to "www" so that Capacitor finds the web assets
+      # 6. Rename build output from "dist" to "www" so that Capacitor finds the web assets
       - name: Rename build output to www
         run: |
           if [ -d "dist" ]; then
@@ -49,20 +49,17 @@ jobs:
             exit 1
           fi
 
-      # 7. Copy web assets into the native Android project
-      - name: Copy web assets to Android
-        run: npx cap copy android
+      # 7. Sync web assets into the native Android project
+      - name: Sync native Android project
+        run: npx cap sync android
 
-      # 8. Update android/settings.gradle to include required Capacitor modules
-      - name: Update android/settings.gradle
+      # 8. Ensure capacitor.build.gradle exists (copy from node_modules if missing)
+      - name: Ensure capacitor.build.gradle exists
         run: |
-          cat > android/settings.gradle << 'EOF'
-          include ':app'
-          include ':capacitor-android'
-          include ':capacitor-cordova-android-plugins'
-          project(':capacitor-android').projectDir = new File(rootProject.projectDir, '../node_modules/@capacitor/android/capacitor')
-          project(':capacitor-cordova-android-plugins').projectDir = new File(rootProject.projectDir, '../node_modules/@capacitor/cli/capacitor-cordova-android-plugins')
-          EOF
+          if [ ! -f "android/app/capacitor.build.gradle" ]; then
+            echo "capacitor.build.gradle not found, copying from node_modules..."
+            cp node_modules/@capacitor/android/capacitor.build.gradle android/app/capacitor.build.gradle
+          fi
 
       # 9. Build the Android APK using Gradle
       - name: Build Android APK
