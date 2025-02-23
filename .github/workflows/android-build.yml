@@ -3,7 +3,7 @@ name: Android APK Build
 on:
   push:
     branches:
-      - main  # Change if using a different branch
+      - main  # Change this if using a different branch
 
 jobs:
   build:
@@ -26,10 +26,10 @@ jobs:
         run: npm install @capacitor/core @capacitor/cli
 
       - name: Build the Web App
-        run: npm run build
+        run: npm run build  # 🛠️ This builds the web app
 
       - name: Copy Web Build to Android
-        run: npx cap copy
+        run: npx cap copy  # ⚡ Moves built files to Android
 
       - name: Set up Java and Android SDK
         uses: android-actions/setup-android@v3
