@@ -61,13 +61,20 @@ jobs:
             cp node_modules/@capacitor/android/capacitor.build.gradle android/app/capacitor.build.gradle
           fi
 
-      # 9. Build the Android APK using Gradle
+      # 9. Set up Java 21 so that the build supports source release 21
+      - name: Set up Java 21
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      # 10. Build the Android APK using Gradle
       - name: Build Android APK
         run: |
           cd android
           ./gradlew assembleDebug
 
-      # 10. Upload the generated APK as an artifact
+      # 11. Upload the generated APK as an artifact
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
