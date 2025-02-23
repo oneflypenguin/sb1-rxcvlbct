@@ -41,17 +41,7 @@ jobs:
           # Update index.html
           sed -i 's/<title>.*<\/title>/<title>CommentarySync<\/title>/' index.html
 
-          # Update README.md
-          echo '# CommentarySync
-
-A dual media player with synchronized commentary tracks.
-
-[Edit in StackBlitz next generation editor ⚡️](https://stackblitz.com/~/github.com/oneflypenguin/commentarysync)' > README.md
-
-          # Update App.tsx
-          sed -i 's/Dual Media Player/CommentarySync/' src/App.tsx
-
-      # Step 5: Build the Vite project
+ # Step 5: Build the Vite project
       - name: Build project
         run: npm run build
 
