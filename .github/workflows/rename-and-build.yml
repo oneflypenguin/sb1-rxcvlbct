@@ -31,8 +31,7 @@ jobs:
             echo '{
               "appId": "com.example.commentarysync",
               "appName": "CommentarySync",
-              "webDir": "www",
-              "bundledWebRuntime": false
+              "webDir": "www"
             }' > capacitor.config.json
           fi
 
@@ -52,13 +51,14 @@ jobs:
       - name: Build project
         run: npm run build
 
-      # Step 7: Install Capacitor
-      - name: Install Capacitor
-        run: npm install @capacitor/core @capacitor/cli
+      # Step 7: Install Capacitor and @capacitor/android
+      - name: Install Capacitor and Android platform
+        run: |
+          npm install @capacitor/core @capacitor/cli @capacitor/android
 
       # Step 8: Initialize Capacitor (if capacitor.config.json doesn't exist)
       - name: Initialize Capacitor
-        run: npx cap init --web-dir dist
+        run: npx cap init --web-dir www
 
       # Step 9: Add Android platform
       - name: Add Android platform
