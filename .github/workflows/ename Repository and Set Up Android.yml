@@ -24,18 +24,32 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # Step 4: Build the project
-      - name: Build project
-        run: npm run build  # Or whatever command you use to build the project (e.g., "npm run build")
+      # Step 4: Install Capacitor dependencies
+      - name: Install Capacitor dependencies
+        run: |
+          npm install @capacitor/core @capacitor/cli
 
-      # Optional: Add a step to generate a platform (like Android) if necessary
-      - name: Build Android (if needed)
+      # Step 5: Initialize Capacitor (if not already initialized)
+      - name: Initialize Capacitor
+        run: |
+          npx cap init "CommentarySync" "com.example.commentarysync" --web-dir www
+
+      # Step 6: Add Android platform
+      - name: Add Android platform
         run: |
           npx cap add android
+
+      # Step 7: Build the project
+      - name: Build project
+        run: npm run build  # Or your project's build command (e.g., "npm run build")
+
+      # Step 8: Build Android APK
+      - name: Build Android APK
+        run: |
           cd android
           ./gradlew assembleDebug  # Builds the APK
 
-      # Step 5: Upload build artifacts (e.g., APK or dist files)
+      # Step 9: Upload build artifacts
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4  # Latest version of the upload-artifact action
         with:
