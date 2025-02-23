@@ -24,60 +24,57 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # Step 4: Rename the app to CommentarySync
+      # Step 4: Create capacitor.config.json if it doesn't exist
+      - name: Create capacitor.config.json
+        run: |
+          if [ ! -f capacitor.config.json ]; then
+            echo '{
+              "appId": "com.example.commentarysync",
+              "appName": "CommentarySync",
+              "webDir": "www",
+              "bundledWebRuntime": false
+            }' > capacitor.config.json
+          fi
+
+      # Step 5: Rename the app to CommentarySync
       - name: Rename app
         run: |
-          # Update capacitor.config.json
-          echo '{
-            "appId": "com.example.commentarysync",
-            "appName": "CommentarySync",
-            "webDir": "dist",
-            "bundledWebRuntime": false
-          }' > capacitor.config.json
-
           # Update package.json
           sed -i 's/"name": ".*"/"name": "commentarysync"/' package.json
 
           # Update index.html
           sed -i 's/<title>.*<\/title>/<title>CommentarySync<\/title>/' index.html
 
-          # Update README.md
-          echo '# CommentarySync
-
-A dual media player with synchronized commentary tracks.
-
-[Edit in StackBlitz next generation editor ⚡️](https://stackblitz.com/~/github.com/oneflypenguin/commentarysync)' > README.md
-
           # Update App.tsx
           sed -i 's/Dual Media Player/CommentarySync/' src/App.tsx
 
-      # Step 5: Build the Vite project
+      # Step 6: Build the Vite project
       - name: Build project
         run: npm run build
 
-      # Step 6: Install Capacitor
+      # Step 7: Install Capacitor
       - name: Install Capacitor
         run: npm install @capacitor/core @capacitor/cli
 
-      # Step 7: Initialize Capacitor (if capacitor.config.json doesn't exist)
+      # Step 8: Initialize Capacitor (if capacitor.config.json doesn't exist)
       - name: Initialize Capacitor
         run: npx cap init --web-dir dist
 
-      # Step 8: Add Android platform
+      # Step 9: Add Android platform
       - name: Add Android platform
         run: npx cap add android
 
-      # Step 9: Set up Android SDK
+      # Step 10: Set up Android SDK
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3  # Updated to v3 (latest version of the action)
 
-      # Step 10: Build the APK
+      # Step 11: Build the APK
       - name: Build APK
         run: |
           cd android
           ./gradlew assembleDebug
 
-      # Step 11: Upload APK as an artifact
+      # Step 12: Upload APK as an artifact
       - name: Upload APK
         uses: actions/upload-artifact@v4  # Updated to v4
         with:
