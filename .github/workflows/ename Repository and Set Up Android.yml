@@ -7,51 +7,52 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest  # Use the latest Ubuntu environment
+    runs-on: ubuntu-latest
 
     steps:
       # Step 1: Checkout the repository
       - name: Checkout code
-        uses: actions/checkout@v4  # Use the latest checkout action
+        uses: actions/checkout@v4
 
       # Step 2: Set up Node.js environment
       - name: Set up Node.js
-        uses: actions/setup-node@v4  # Latest version of Node.js setup
+        uses: actions/setup-node@v4
         with:
-          node-version: 18  # Use Node.js 18 or the version you need
+          node-version: 18
 
-      # Step 3: Install dependencies
+      # Step 3: Install project dependencies
       - name: Install dependencies
         run: npm install
 
-      # Step 4: Install Capacitor dependencies
+      # Step 4: Install Capacitor packages including the Android package
       - name: Install Capacitor dependencies
-        run: |
-          npm install @capacitor/core @capacitor/cli
+        run: npm install @capacitor/core @capacitor/cli @capacitor/android
 
-      # Step 5: Initialize Capacitor (if not already initialized)
+      # Step 5: Initialize Capacitor
       - name: Initialize Capacitor
-        run: |
-          npx cap init "CommentarySync" "com.example.commentarysync" --web-dir www
+        run: npx cap init "CommentarySync" "com.example.commentarysync" --web-dir www
 
       # Step 6: Add Android platform
       - name: Add Android platform
-        run: |
-          npx cap add android
+        run: npx cap add android
 
-      # Step 7: Build the project
-      - name: Build project
-        run: npm run build  # Or your project's build command (e.g., "npm run build")
+      # Step 7: Build the web project (adjust if your build command is different)
+      - name: Build web project
+        run: npm run build
 
-      # Step 8: Build Android APK
+      # Step 8: Copy web assets to the native Android project
+      - name: Copy web assets
+        run: npx cap copy android
+
+      # Step 9: Build the Android APK
       - name: Build Android APK
         run: |
           cd android
-          ./gradlew assembleDebug  # Builds the APK
+          ./gradlew assembleDebug
 
-      # Step 9: Upload build artifacts
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4  # Latest version of the upload-artifact action
+      # Step 10: Upload the APK as an artifact
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: app-build
-          path: dist/  # Adjust based on where your build output goes (e.g., dist/ or android/app/build)
+          name: commentarysync-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
