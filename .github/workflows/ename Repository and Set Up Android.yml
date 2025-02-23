@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout the repository and set up the environment
+      # 1. Checkout the repository and set up Node.js
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -26,19 +26,18 @@ jobs:
       - name: Install Capacitor dependencies
         run: npm install @capacitor/core @capacitor/cli @capacitor/android
 
-      # 3. Initialize Capacitor (creates/updates capacitor.config.json with webDir as "www")
+      # 3. Initialize Capacitor and add Android platform
       - name: Initialize Capacitor
         run: npx cap init "CommentarySync" "com.example.commentarysync" --web-dir www
 
-      # 4. Add Android platform (this creates the native Android project)
       - name: Add Android platform
         run: npx cap add android
 
-      # 5. Build the web project (assumed to output to "dist")
+      # 4. Build the web project (assumes output to "dist")
       - name: Build web project
         run: npm run build
 
-      # 6. Rename "dist" to "www" so that Capacitor finds the web assets
+      # 5. Rename build output from "dist" to "www" for Capacitor
       - name: Rename build output to www
         run: |
           if [ -d "dist" ]; then
@@ -49,23 +48,26 @@ jobs:
             exit 1
           fi
 
-      # 7. Copy web assets into the native Android project
+      # 6. Copy web assets into the native Android project
       - name: Copy web assets to Android
         run: npx cap copy android
 
-      # 8. Create the missing capacitor.settings.gradle file for Gradle
-      - name: Create capacitor.settings.gradle file
+      # 7. Update android/settings.gradle to include the Capacitor Android module
+      - name: Update android/settings.gradle
         run: |
-          echo 'rootProject.name = "CommentarySync"' > android/capacitor.settings.gradle
-          echo 'include ":app"' >> android/capacitor.settings.gradle
+          cat > android/settings.gradle << 'EOF'
+          include ':app'
+          include ':capacitor-android'
+          project(':capacitor-android').projectDir = new File(rootDir, '../node_modules/@capacitor/android/capacitor')
+          EOF
 
-      # 9. Build the Android APK using Gradle
+      # 8. Build the Android APK using Gradle
       - name: Build Android APK
         run: |
           cd android
           ./gradlew assembleDebug
 
-      # 10. Upload the generated APK as an artifact
+      # 9. Upload the generated APK as an artifact
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
