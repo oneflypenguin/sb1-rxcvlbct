@@ -1,46 +1,44 @@
-name: Build App for the First Time
+name: First-Time Build App
 
 on:
   push:
     branches:
-      - main  # Trigger on push to the main branch
+      - main
 
 jobs:
-  build:
+  first-time-build:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository
+      # 1. Checkout the repository and set up the environment
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Step 2: Set up Node.js environment
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      # Step 3: Install project dependencies
+      # 2. Install project and Capacitor dependencies
       - name: Install dependencies
         run: npm install
 
-      # Step 4: Install Capacitor packages including Android
       - name: Install Capacitor dependencies
         run: npm install @capacitor/core @capacitor/cli @capacitor/android
 
-      # Step 5: Initialize Capacitor (this creates or updates capacitor.config.json with webDir as "www")
+      # 3. Initialize Capacitor (creates/updates capacitor.config.json with webDir as "www")
       - name: Initialize Capacitor
         run: npx cap init "CommentarySync" "com.example.commentarysync" --web-dir www
 
-      # Step 6: Add Android platform
+      # 4. Add Android platform (this creates the native Android project)
       - name: Add Android platform
         run: npx cap add android
 
-      # Step 7: Build the web project (assumed to output to "dist")
+      # 5. Build the web project (assumed to output to "dist")
       - name: Build web project
         run: npm run build
 
-      # Step 8: Rename the build output from "dist" to "www" (so that Capacitor finds the web assets)
+      # 6. Rename "dist" to "www" so that Capacitor finds the web assets
       - name: Rename build output to www
         run: |
           if [ -d "dist" ]; then
@@ -51,17 +49,23 @@ jobs:
             exit 1
           fi
 
-      # Step 9: Copy web assets into the native Android project
-      - name: Copy web assets
+      # 7. Copy web assets into the native Android project
+      - name: Copy web assets to Android
         run: npx cap copy android
 
-      # Step 10: Build the Android APK
+      # 8. Create the missing capacitor.settings.gradle file for Gradle
+      - name: Create capacitor.settings.gradle file
+        run: |
+          echo 'rootProject.name = "CommentarySync"' > android/capacitor.settings.gradle
+          echo 'include ":app"' >> android/capacitor.settings.gradle
+
+      # 9. Build the Android APK using Gradle
       - name: Build Android APK
         run: |
           cd android
           ./gradlew assembleDebug
 
-      # Step 11: Upload the APK as an artifact
+      # 10. Upload the generated APK as an artifact
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
